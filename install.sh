@@ -22,15 +22,19 @@
 #
 #   pi           ~/.pi/agent/prompts/      ~/.pi/agent/AGENTS.md
 #   Claude Code  ~/.claude/commands/       ~/.claude/CLAUDE.md
+#
+# It also saves this folder as WORKFLOW_DIR in ~/.bashrc, so kits built on the
+# workflow can find it (WORKFLOW.md section 8). If the folder moves, run this
+# again. With zsh (the macOS default), copy that line to ~/.zshrc yourself.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-MODE=link
+MODE="link"
 SOURCES=("$HERE/templates/commands")
 for arg in "$@"; do
   case "$arg" in
-    --copy) MODE=copy ;;
-    --link) MODE=link ;;
+    --copy) MODE="copy" ;;
+    --link) MODE="link" ;;
     -*) echo "usage: bash install.sh [--copy] [extra-commands-dir ...]" >&2; exit 1 ;;
     *) [[ -d "$arg" ]] || { echo "not a directory: $arg" >&2; exit 1; }
        SOURCES+=("$(cd "$arg" && pwd)") ;;
@@ -79,6 +83,20 @@ fi
 if [[ $found -eq 0 ]]; then
   echo "No agent harness found (looked for pi and Claude Code). Install one, then run this again." >&2
   exit 1
+fi
+
+# Where this workflow lives, for kits. One line in ~/.bashrc, replaced if the folder moved.
+RC="$HOME/.bashrc"
+LINE="export WORKFLOW_DIR=\"$HERE\""
+if ! grep -qxF "$LINE" "$RC" 2>/dev/null; then
+  if grep -q '^export WORKFLOW_DIR=' "$RC" 2>/dev/null; then
+    TMP="$(mktemp)"
+    grep -v '^export WORKFLOW_DIR=' "$RC" > "$TMP" || true
+    cat "$TMP" > "$RC"   # write through, so a linked ~/.bashrc stays a link
+    rm -f "$TMP"
+  fi
+  echo "$LINE" >> "$RC"
+  echo "Saved WORKFLOW_DIR=$HERE in ~/.bashrc (open a new terminal to use it)"
 fi
 if [[ "$MODE" == link ]]; then
   echo "Done (linked). Type / in a new session: /start, /wrap and /judge must be offered."

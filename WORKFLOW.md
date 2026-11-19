@@ -72,7 +72,7 @@ This makes `/start`, `/wrap` and `/judge` exist in every project, and installs t
 ```bash
 bash install.sh
 ```
-The commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run. Type `/` in a new session to see that they are offered; if a harness doesn't show linked commands, use `bash install.sh --copy`.
+The commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run. Type `/` in a new session to see that they are offered; if a harness doesn't show linked commands, use `bash install.sh --copy`. It also saves this folder as `WORKFLOW_DIR` in `~/.bashrc`, for kits (§8).
 
 **Windows (PowerShell, Claude Code), from this folder:**
 ```powershell
@@ -84,7 +84,10 @@ Copy-Item templates\commands\*.md "$env:USERPROFILE\.claude\commands\"
 ```powershell
 if (-not (Test-Path "$env:USERPROFILE\.claude\CLAUDE.md")) { Copy-Item templates\user-level\AGENTS.md "$env:USERPROFILE\.claude\CLAUDE.md" }
 ```
-These are copies: repeat the second line when the commands change.
+```powershell
+[Environment]::SetEnvironmentVariable("WORKFLOW_DIR", (Get-Location).Path, "User")
+```
+These are copies: repeat the second line when the commands change. The last line saves this folder as `WORKFLOW_DIR`, for kits (§8); new terminals see it. Run it again if the folder moves.
 
 Then open the user-level file once and fill its one bracket.
 
@@ -220,7 +223,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 | Data app (Python) | `pytest` | Load and clean data, rules, tests | Keep the `Data` section and `docs/data.md` |
 | Competition or client demo | as above | as above | Keep the `Competition` section: it adds the budget, the time table and the AI log |
 | Embedded | Host-side tests (e.g. `pio test -e native`) plus the build | Hardware abstraction layer, drivers, logic tested on the PC | Pin map and errata go in `docs/hardware.md`, with a read-when row. For ESP32 with a test bench, the Embed_WF kit builds on this workflow. |
-| Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks |
+| Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks. For strategy and sim games, the Gamedev_WF kit builds on this workflow. |
 | Existing codebase | Its own test command | none | No M0; see §3 |
 | Comics, writing, art | None | None | This workflow doesn't fit. Use a Claude Project with critique-only instructions. |
 
@@ -228,14 +231,17 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 ### Building a kit on this workflow
 
-A kit (Embed_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first.
+A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
+
+**Contract of 19 November 2026.** A kit's README names the date it was written against.
 
 - **Commands:** `/start <task>`, `/wrap <note>`, `/judge [final]`.
-- **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed". This is where a kit adds its own steps. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
+- **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", and "Judged on" (read by `/judge`). The two "also" fields are where a kit adds steps to the bookkeeping at the start and end of a session. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
 - **PROGRESS.md sections:** Now, Next, Broken, Waiting on me, Done, How to run. An item only I can check waits there as "awaiting my check".
 - **docs/:** `history.md` and `decisions.md`, in the formats of `templates/project/docs/`.
-- **The plan:** any file that "Read only when needed" points to. Each task in it has a "Done when". Checkboxes are optional; `/wrap` ticks them only where they exist.
-- **Installing a kit's commands:** Linux: `bash <this folder>/install.sh <kit commands folder>`. Windows: the commands `Copy-Item` line from §3, run a second time with the kit's folder. Kit commands use the same file format as `templates/commands/`.
+- **The plan:** any file that "Read only when needed" points to. Each task in it has a "Done when", or the Done gate applies. If the plan has checkboxes, `/start` and `/wrap` tick them. A kit that marks finished tasks some other way (a status column, say) does it in its "At /start also" and "At /wrap also" steps.
+- **Where the workflow lives:** `WORKFLOW_DIR`, which §3 sets once per machine. A kit reads it to find this folder, for instance to copy `templates/project/` files, and stops with a clear message if it isn't set. It never guesses a path.
+- **Installing a kit's commands:** Linux: `bash "$WORKFLOW_DIR/install.sh" <kit commands folder>`. Windows: the commands `Copy-Item` line from §3, run a second time with the kit's folder. Kit commands use the same file format as `templates/commands/`.
 
 ---
 
@@ -271,10 +277,13 @@ A kit (Embed_WF, for instance) adds a project template and its own commands for 
 
 | Before | Now | Why |
 |---|---|---|
-| `/wrap` "ticked" a finished task where the plan lives | The record of finished is the history.md entry plus the "Done" line. Plans with checkboxes still get ticked; plans without them are left alone | The generic plan has no checkboxes, so every agent invented its own tick. A tick would also record the same fact a third time. |
+| `/wrap` "ticked" a finished task where the plan lives | The record of finished is the history.md entry plus the "Done" line. Plans with checkboxes still get ticked. A kit that marks finished tasks another way does it in its "also" steps | The generic plan has no checkboxes, so every agent invented its own tick. A tick would also record the same fact a third time. |
 | PROGRESS.md was said to hold decisions and dead ends (efficient-ai-tools.md) | efficient-ai-tools.md points to §1 instead of describing the files. A dead end goes in "Now" while it matters to the task, and in decisions.md under "Rejected" once settled | One fact, one place: the second description had already drifted. |
 | pi described as the second agent | Claude Code is the agent; pi is for later, with self-hosted models (§6) | Claude plans don't cover pi, and the laptops can't host models big enough for agent loops yet. |
 | Windows per-project setup was one `Copy-Item` | Seven PowerShell steps that do what `new-project.sh` does (§3) | Windows is the main machine. The old line skipped the name, the notes folder, the parent-folder check and the first commit. |
 | A kit (Embed_WF) carried its own copy of this workflow | Kits rely only on the list in §8, "Building a kit on this workflow" | The copy had already fallen behind this version. |
+| Each kit saved the workflow's location its own way, or guessed it | `install.sh` (Windows: one line in §3) saves `WORKFLOW_DIR`; §8 names it | Both kits need it, one of them after install too. One variable in one place instead of one per kit. |
+| The §8 list left out "Judged on" and said every task has a "Done when" | "Judged on" is listed; a task without "Done when" falls back to the Done gate, as `/start` already did. The list carries a date | Both kits rely on these. The date lets a kit say which version of the list it was written against. |
+| `templates/project/.gitignore` ignored `secrets.h` | Removed | It's an embedded detail; Embed_WF's own template already ignores it. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.
