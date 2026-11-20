@@ -70,22 +70,8 @@ install_for() {   # <name> <commands-dir> <global-instructions-file>
   fi
 }
 
-found=0
-PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
-if command -v pi >/dev/null 2>&1 || [[ -d "$PI_DIR" ]]; then
-  install_for "pi" "$PI_DIR/prompts" "$PI_DIR/AGENTS.md"
-  found=1
-fi
-if command -v claude >/dev/null 2>&1 || [[ -d "$HOME/.claude" ]]; then
-  install_for "Claude Code" "$HOME/.claude/commands" "$HOME/.claude/CLAUDE.md"
-  found=1
-fi
-if [[ $found -eq 0 ]]; then
-  echo "No agent harness found (looked for pi and Claude Code). Install one, then run this again." >&2
-  exit 1
-fi
-
 # Where this workflow lives, for kits. One line in ~/.bashrc, replaced if the folder moved.
+# Saved before looking for an agent, so it is set even on a machine that has none yet.
 RC="$HOME/.bashrc"
 LINE="export WORKFLOW_DIR=\"$HERE\""
 if ! grep -qxF "$LINE" "$RC" 2>/dev/null; then
@@ -98,6 +84,22 @@ if ! grep -qxF "$LINE" "$RC" 2>/dev/null; then
   echo "$LINE" >> "$RC"
   echo "Saved WORKFLOW_DIR=$HERE in ~/.bashrc (open a new terminal to use it)"
 fi
+
+found=0
+PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+if command -v pi >/dev/null 2>&1 || [[ -d "$PI_DIR" ]]; then
+  install_for "pi" "$PI_DIR/prompts" "$PI_DIR/AGENTS.md"
+  found=1
+fi
+if command -v claude >/dev/null 2>&1 || [[ -d "$HOME/.claude" ]]; then
+  install_for "Claude Code" "$HOME/.claude/commands" "$HOME/.claude/CLAUDE.md"
+  found=1
+fi
+if [[ $found -eq 0 ]]; then
+  echo "No agent harness found (looked for pi and Claude Code). WORKFLOW_DIR is saved; install an agent, then run this again." >&2
+  exit 1
+fi
+
 if [[ "$MODE" == link ]]; then
   echo "Done (linked). Type / in a new session: /start, /wrap and /judge must be offered."
   echo "If they are not, run:  bash \"$HERE/install.sh\" --copy"

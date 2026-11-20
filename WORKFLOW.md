@@ -233,7 +233,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
 
-**Contract of 19 November 2026.** A kit's README names the date it was written against.
+**Contract of 20 November 2026.** A kit's README names the date it was written against.
 
 - **Commands:** `/start <task>`, `/wrap <note>`, `/judge [final]`.
 - **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", and "Judged on" (read by `/judge`). The two "also" fields are where a kit adds steps to the bookkeeping at the start and end of a session. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
@@ -241,6 +241,7 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 - **docs/:** `history.md` and `decisions.md`, in the formats of `templates/project/docs/`.
 - **The plan:** any file that "Read only when needed" points to. Each task in it has a "Done when", or the Done gate applies. If the plan has checkboxes, `/start` and `/wrap` tick them. A kit that marks finished tasks some other way (a status column, say) does it in its "At /start also" and "At /wrap also" steps.
 - **Where the workflow lives:** `WORKFLOW_DIR`, which §3 sets once per machine. A kit reads it to find this folder, for instance to copy `templates/project/` files, and stops with a clear message if it isn't set. It never guesses a path.
+- **Git commands the workflow runs:** `git pull` (`/start`); `git status`, `git add`, `git commit`, `git show --stat`, and `git push` only as Push allows (`/wrap`); `git add` and `git commit` (`/judge`). A kit that sets up permissions, such as a Claude Code allowlist, allows these plus its own Check and Done gate commands, so a session never waits on a prompt the workflow causes. When a command changes the git commands it runs, this line and the date change with it.
 - **Installing a kit's commands:** Linux: `bash "$WORKFLOW_DIR/install.sh" <kit commands folder>`. Windows: the commands `Copy-Item` line from §3, run a second time with the kit's folder. Kit commands use the same file format as `templates/commands/`.
 
 ---
@@ -273,7 +274,7 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 | Time logged in every project, with a Time table in every PROGRESS.md | Only with the `Competition` section, which creates the table when it first logs a time | Nothing used it outside a budgeted event, and a file the agent maintains should have nothing for me to delete. |
 | history.md entries carried "time spent" | Only with the `Competition` section | Same reason. |
 
-### Since then (19 November 2026)
+### Since then (19–20 November 2026)
 
 | Before | Now | Why |
 |---|---|---|
@@ -283,6 +284,8 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 | Windows per-project setup was one `Copy-Item` | Seven PowerShell steps that do what `new-project.sh` does (§3) | Windows is the main machine. The old line skipped the name, the notes folder, the parent-folder check and the first commit. |
 | A kit (Embed_WF) carried its own copy of this workflow | Kits rely only on the list in §8, "Building a kit on this workflow" | The copy had already fallen behind this version. |
 | Each kit saved the workflow's location its own way, or guessed it | `install.sh` (Windows: one line in §3) saves `WORKFLOW_DIR`; §8 names it | Both kits need it, one of them after install too. One variable in one place instead of one per kit. |
+| `install.sh` saved `WORKFLOW_DIR` only after finding an agent | It saves it first, then looks for an agent (20 Nov) | On a fresh machine the kit's setup installs the agent, so it needs `WORKFLOW_DIR` before any agent exists. Otherwise setup ran twice. |
+| Nothing listed the git commands the workflow runs | §8 lists them; contract of 20 November 2026 | Gamedev_WF's allowlist missed `git pull` (`/start`) and `git show` (`/wrap`), so every session waited on a prompt. Each kit was guessing from the command files. |
 | The §8 list left out "Judged on" and said every task has a "Done when" | "Judged on" is listed; a task without "Done when" falls back to the Done gate, as `/start` already did. The list carries a date | Both kits rely on these. The date lets a kit say which version of the list it was written against. |
 | `templates/project/.gitignore` ignored `secrets.h` | Removed | It's an embedded detail; Embed_WF's own template already ignores it. |
 
