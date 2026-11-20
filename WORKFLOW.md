@@ -210,6 +210,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 | The agent hits the Run limit | The task is too big or its "Done when" too far away. Split it, or wrap and restart with what the runs showed. If healthy sessions hit it, raise the number in AGENTS.md. |
 | The plan at Gate 1 keeps being wrong | The plan section is too vague. Put the edge cases and the "Done when" there, not in chat. |
 | The same mistake keeps coming back | Add one line to AGENTS.md (or the user-level file if it happens in every project). Remove rules again once models stop needing them. |
+| A lesson from the last project wasn't applied | It was a reminder. Put it into a step that already exists: a "Done when" in docs/plan.md, or a question in `/judge`. |
 | The agent keeps asking what to do next | "Next" in PROGRESS.md isn't concrete enough to start from. |
 | "Waiting on me" piles up | You're not checking. Nothing there counts as done; check before starting more. |
 | `/start` isn't offered | The commands aren't installed for this agent on this machine (§3). |
@@ -221,7 +222,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 | Project | Check command | M1 foundation | Notes |
 |---|---|---|---|
 | Data app (Python) | `pytest` | Load and clean data, rules, tests | Keep the `Data` section and `docs/data.md` |
-| Competition or client demo | as above | as above | Keep the `Competition` section: it adds the budget, the time table and the AI log |
+| Competition or client demo | as above | as above | Keep the `Competition` section: it adds the budget, the time table, the AI log, the official score and the submission dry run. For a deck, a video and the pitch card, the Pitch_WF kit builds on this workflow. |
 | Embedded | Host-side tests (e.g. `pio test -e native`) plus the build | Hardware abstraction layer, drivers, logic tested on the PC | Pin map and errata go in `docs/hardware.md`, with a read-when row. For ESP32 with a test bench, the Embed_WF kit builds on this workflow. |
 | Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks. For strategy and sim games, the Gamedev_WF kit builds on this workflow. |
 | Existing codebase | Its own test command | none | No M0; see §3 |
@@ -233,10 +234,10 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
 
-**Contract of 20 November 2026.** A kit's README names the date it was written against.
+**Contract of November 20 2026.** A kit's README names the date it was written against.
 
 - **Commands:** `/start <task>`, `/wrap <note>`, `/judge [final]`.
-- **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", and "Judged on" (read by `/judge`). The two "also" fields are where a kit adds steps to the bookkeeping at the start and end of a session. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
+- **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", "Judged on" and "At /judge also" (both read by `/judge`). The two "also" fields of `/start` and `/wrap` are where a kit adds steps to the bookkeeping at the start and end of a session; "At /judge also" is where it adds review steps, which `/judge` does first (a step marked final only in the final review). A project's AGENTS.md may list an "also" field in more than one section; the commands do them all. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
 - **PROGRESS.md sections:** Now, Next, Broken, Waiting on me, Done, How to run. An item only I can check waits there as "awaiting my check".
 - **docs/:** `history.md` and `decisions.md`, in the formats of `templates/project/docs/`.
 - **The plan:** any file that "Read only when needed" points to. Each task in it has a "Done when", or the Done gate applies. If the plan has checkboxes, `/start` and `/wrap` tick them. A kit that marks finished tasks some other way (a status column, say) does it in its "At /start also" and "At /wrap also" steps.
@@ -288,5 +289,22 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 | Nothing listed the git commands the workflow runs | §8 lists them; contract of 20 November 2026 | Gamedev_WF's allowlist missed `git pull` (`/start`) and `git show` (`/wrap`), so every session waited on a prompt. Each kit was guessing from the command files. The list is a minimum: read-only helpers such as `git diff` and `git log` may be added (a clarification, so the contract date stays). |
 | The §8 list left out "Judged on" and said every task has a "Done when" | "Judged on" is listed; a task without "Done when" falls back to the Done gate, as `/start` already did. The list carries a date | Both kits rely on these. The date lets a kit say which version of the list it was written against. |
 | `templates/project/.gitignore` ignored `secrets.h` | Removed | It's an embedded detail; Embed_WF's own template already ignores it. |
+
+### From the Since AI 2026 findings (20 November 2026)
+
+No new step in a session: the checks that already existed ask more. The one new plan section is the submission dry run.
+
+| Before | Now | Why |
+|---|---|---|
+| `/judge` ranked issues by value per hour | By how much each would change the result, with the hours beside it | Value per hour favoured a 20-minute paragraph over the one large gap. At Since AI the winning route was written up as a limit three times instead of built. |
+| `/judge` scored against the criteria only | With a `Competition` section it also starts from the hand-in with no setup, asks what the winning entry would show, re-reads "Not doing" and lists headline sentences that argue against the project | The judge pass found the weak spot but never looked at the entry against a competing one. |
+| A kit could add steps to `/start` and `/wrap` only | "At /judge also" (§8): a kit adds review steps too | The presentation kit's skim test and deck and video checks belong to the kit, not to every project. |
+| The first-question check asked one question | Three: the first question, the title question, and whether each line of "Not doing" still holds | The challenge's title was answered by a concept page, and a "Not doing" line written on day one was never reopened. |
+| "AI in the product: rules and real data decide; AI only explains" | A `Model` line (at a competition the default is to build it) and a separate line for generated text | The old line read as a rule against trained models. The top entries each had one, with a measured score. |
+| No official score | An `Official score` line; M0 runs the evaluator's baseline, lists what it scores and counts the rows of every table | The package's evaluator was never run, and the extracted data had an empty table nobody noticed. |
+| Demo: a hosted link plus a ZIP that needed data copied in | `Demo access`: no setup for the judge | The hosted demo was never opened, and every setup step loses a hurried judge. |
+| The hand-in was assembled on the last night | A submission dry run before the last evening | The ZIP was rebuilt several times, and personal notes were found in it at 01:57. |
+| Files handed to a chat could be copied into the repo | User-level rule: a file from outside the repo stays outside | Prep notes with informal remarks ended up in the production repo. |
+| Lessons kept in a "Remember" list | Put into a step that already exists (§7) | A lesson from the dry run sat in that list and was not applied. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.
