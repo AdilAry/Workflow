@@ -33,7 +33,7 @@ Read only the section of the current task. One section is one session; if it tur
 
 ## M3 [Next section, same shape: what it adds, then "Done when"]
 - [What it adds.]
-- [IF AI in the product] Read generated text for meaning as well as numbers: it must not claim more than the data shows, and it uses the app's own wording and units.
+- [IF generated text in the product] Read generated text for meaning as well as numbers: it must not claim more than the data shows, and it uses the app's own wording and units.
 - **Done when:** `[command]` passes; by hand I check [what only a person can judge | nothing].
 
 ## First-question check [IF competition] (15 min, fresh session)
@@ -52,7 +52,7 @@ If any answer is weak, tell me before going on.
 - **Done when:** `[the Check command]` passes; by hand I check [the demo moment on the target screen].
 
 ## Review (fresh session)
-Run /judge. It reports issues ranked by how much each would change the result, with the hours beside them; I pick which ones get fixed, and each fix is its own /start.
+Run `/judge`. It reports issues ranked by how much each would change the result, with the hours beside them; I pick which ones get fixed, and each fix is its own `/start`.
 
 ## Submission dry run [IF competition] (before the last evening)
 - Build the hand-in from the current commit. Unpack it in an empty folder and run it from its README alone: no setup beyond one command, where the data terms allow.

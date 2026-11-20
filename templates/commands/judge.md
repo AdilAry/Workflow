@@ -8,8 +8,8 @@ You are reviewing, not building. If this session wrote any of the code under rev
 and tell me to start a fresh one.
 
 If AGENTS.md lists "At /judge also" steps (a kit adds them), do them first, in the order
-listed, and add what they find to the issues in step 5. A step marked final runs only in the
-final review.
+listed, and add what they find to the issues in step 5. Steps listed under "At /judge also
+(final)" run only in the final review.
 
 1. Before opening the code, read the brief I attach. If nothing is attached, use the Project
    section of AGENTS.md and the plan or spec it points to. Take the role of the person in "For"; if
