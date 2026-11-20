@@ -234,7 +234,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
 
-**Contract of November 20 2026.** A kit's README names the date it was written against.
+**Contract of November 21 2026.** A kit's README names the date it was written against.
 
 - **Commands:** `/start <task>`, `/wrap <note>`, `/judge [final]`.
 - **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", "Judged on" and "At /judge also" (both read by `/judge`). The two "also" fields of `/start` and `/wrap` are where a kit adds steps to the bookkeeping at the start and end of a session; "At /judge also" is where it adds review steps, which `/judge` does first (a step marked final only in the final review). A project's AGENTS.md may list an "also" field in more than one section; the commands do them all. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
@@ -290,7 +290,7 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 | The §8 list left out "Judged on" and said every task has a "Done when" | "Judged on" is listed; a task without "Done when" falls back to the Done gate, as `/start` already did. The list carries a date | Both kits rely on these. The date lets a kit say which version of the list it was written against. |
 | `templates/project/.gitignore` ignored `secrets.h` | Removed | It's an embedded detail; Embed_WF's own template already ignores it. |
 
-### From the Since AI 2026 findings (20 November 2026)
+### From the Since AI 2026 findings (21 November 2026)
 
 No new step in a session: the checks that already existed ask more. The one new plan section is the submission dry run.
 
