@@ -52,7 +52,7 @@ If any answer is weak, tell me before going on.
 - **Done when:** `[the Check command]` passes; by hand I check [the demo moment on the target screen].
 
 ## Review (fresh session)
-Run `/judge`. It reports issues ranked by value per hour; I pick which ones get fixed, and each fix is its own `/start`.
+Run /judge. It reports issues ranked by how much each would change the result, with the hours beside them; I pick which ones get fixed, and each fix is its own /start.
 
 ## Submission dry run [IF competition] (before the last evening)
 - Build the hand-in from the current commit. Unpack it in an empty folder and run it from its README alone: no setup beyond one command, where the data terms allow.
