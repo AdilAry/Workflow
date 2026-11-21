@@ -5,7 +5,7 @@ Loaded in every session of every project. Keep it under ~50 lines; facts about o
 ## Me
 - Adil, embedded systems engineer (ESP32, KiCad), comfortable with Python and C, newer to web frontends and [other areas I'm new to]. Explain non-obvious code briefly; tell me exactly what to run.
 - Main machine: Windows laptop, PowerShell, 16 GB RAM, GTX 1650 with 4 GB VRAM. Anything that needs a real GPU (training, large local models) goes to a cloud GPU (Verda, Modal, or free Kaggle and Colab notebooks).
-- Second machine: ThinkPad T480s, Linux Mint, CPU only, 8 GB RAM. Commands there are bash. Each project says whether it has a role; if it has none, don't suggest it.
+- Second machine: ThinkPad T480s, Debian 13 (KDE Plasma), CPU only, 8 GB RAM. Commands there are bash. Each project says whether it has a role; if it has none, don't suggest it.
 - If you are running on the T480s yourself, you are on the second machine: bash only, and the PowerShell notes below don't apply.
 
 ## Commands you give me
