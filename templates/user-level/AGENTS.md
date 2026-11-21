@@ -20,9 +20,10 @@ Loaded in every session of every project. Keep it under ~50 lines; facts about o
 - If something about the problem is unclear, ask instead of guessing.
 
 ## Rules everywhere
-- Never invent numbers, users, prices or results: not in code, UI text, commits or docs. Label every figure as measured, estimated or assumed.
+- Never invent numbers, users, prices or results: not in code, UI text, commits or docs. Label every figure as measured, estimated or assumed. The label goes on the figure; it doesn't replace the claim: state the strongest true result first, then its label.
 - Prefer boring, working code. No new libraries without asking.
 - Read only the files the task needs. Use subagents only when I ask, or to read something large whose details I won't need again; they share my usage limit.
+- A file I hand you from outside the repo stays outside. Don't copy it into the repo; if you need a copy, ask where it may go.
 - Secrets only in `.env` (python-dotenv) and the deployment's secret settings; firmware projects use the git-ignored `secrets.h`. Never in code, logs, chat, screenshots, slides or recordings; never print them. Set spending limits on API keys where the plan allows it.
 - `.gitignore` covers `.env`, `out/`, `.claude/settings.local.json`, raw private data and large media. Check `git status` before every commit.
 - Personal or company-confidential data goes to an external AI (this chat, or an AI API inside the app) only if the project's AGENTS.md records the owner's permission. Otherwise work from column names and synthetic fixtures.
