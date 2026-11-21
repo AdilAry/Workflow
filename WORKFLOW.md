@@ -145,14 +145,7 @@ Then, on either machine:
 
 If the last session left something "awaiting my check", `/start` asks about that first.
 
-**After my OK** the agent works the plan and may loop on its own (run, read the failure, fix) until "done when" passes. It stops and reports if:
-- it needs to leave the plan;
-- the same failure survives 3 different fixes;
-- passing would mean changing or deleting an existing test that the plan doesn't name;
-- it has made as many test or build runs as the project's Run limit (20 by default), counting every run, passed or failed;
-- something needs my hands, or the plan is ambiguous or wrong.
-
-Then it tells me what to check and to type `/wrap`.
+**After my OK** the agent works the plan and may loop on its own (run, read the failure, fix) until "done when" passes, or until one of the stop rules in `/start` step 7 applies (`templates/commands/start.md`). Then it tells me what to check and to type `/wrap`.
 
 **End:** `/wrap`. It runs Check and "done when", rewrites PROGRESS.md, commits, and tells me which files changed, what to run, the output to expect and what to check by hand. Then I check it and clear the session. *(Gate 2.)*
 
@@ -226,7 +219,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 | Embedded | Host-side tests (e.g. `pio test -e native`) plus the build | Hardware abstraction layer, drivers, logic tested on the PC | Pin map and errata go in `docs/hardware.md`, with a read-when row. For ESP32 with a test bench, the Embed_WF kit builds on this workflow. |
 | Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks. For Godot games, the Gamedev_WF kit builds on this workflow; its simulation tools fit strategy and sim games best. |
 | Existing codebase | Its own test command | none | No M0; see §3 |
-| Comics, writing, art | None | None | This workflow doesn't fit. Use a Claude Project with critique-only instructions. |
+| Writing, notes, comic scripts | None, or the site build (e.g. `hugo`) | None | Every task is a no-code task: its "done when" is a file, what it must say, and my approval, so each one ends "awaiting my check" (§4). Drawing and art stay outside the workflow. |
 
 **If a project should teach me something** (the old "learn" mode): say so in the task. `/start write the parser, but leave the tokenizer to me` gives a plan whose "done when" is "the scaffold builds and only the tokenizer tests fail". The loop has an end again, which a project-wide learn mode did not give it.
 
@@ -307,5 +300,13 @@ No new step in a session: the checks that already existed ask more. The one new 
 | Files handed to a chat could be copied into the repo | User-level rule: a file from outside the repo stays outside | Prep notes with informal remarks ended up in the production repo. |
 | Lessons kept in a "Remember" list | Put into a step that already exists (§7) | A lesson from the dry run sat in that list and was not applied. |
 | `/judge` counted every setup step as an issue, in every project | Only with "Demo access" does it start from the hand-in alone. Otherwise the setup that PROGRESS.md "How to run" says a machine needs is expected, and only steps beyond it, or steps that fail as written, are issues | Both kits found that every pass would have flagged the dev box, the boards or the Godot install. One rule in `/judge` instead of a workaround in each kit. |
+
+### From the workflow review (21 November 2026)
+
+| Before | Now | Why |
+|---|---|---|
+| The template's Done gate said "the task's Done when passes", and `/start` said "Done when, otherwise the Done gate" | The Done gate is the default proof for a task whose plan section has no "Done when"; a "Done when" replaces it | The two definitions pointed at each other. Same field, same §8 contract; kits that set their own Done gate already use it this way. |
+| The stop rules were written out in both `/start` and §4 | Only in `/start` step 7; §4 points there | One fact, one place. §4 had already lost detail that `/start` has. |
+| Writing projects "don't fit" | They fit as no-code tasks, each ending "awaiting my check" (§8) | `/start` already handles tasks without code. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.

@@ -23,8 +23,8 @@ Loaded in every session. Keep it under ~120 lines once filled in: only facts tha
 ## Stack
 - **Language and tools:** [e.g. Python 3.12 + Streamlit, pandas | C + PlatformIO | Godot 4 + GDScript].
 - **Run:** `[command that starts it, in a fresh terminal]`
-- **Check:** `[the command that says whether it works: tests, build, linter]`. Run it before calling anything done.
-- **Done gate:** the task's "Done when" in docs/plan.md passes. For a task that isn't in the plan: Check passes, and a named test covers the change.
+- **Check:** `[the command that says whether the whole project still works: tests, build, linter]`.
+- **Done gate:** what proves a task whose plan section gives no "Done when" (or that isn't in the plan): Check passes, and a named test covers the change. A "Done when" in docs/plan.md replaces it for that task.
 - **Run limit:** [20] test or build runs in one session, passed or failed. Then stop and report.
 - **Push:** [in /wrap | only after I've checked the result].
 - **Hardware:** [none | board, notes file in docs/].
