@@ -19,6 +19,7 @@ Updated: [date and time]. Current state only, under ~60 lines. Finished work is 
 - [M0 skeleton]: [one line]. Details in docs/history.md.
 
 ## How to run
+Needs: [what a fresh machine must have first: tools and versions, hardware, accounts | nothing beyond a clone].
 ```
 [commands that work in a fresh terminal]
 ```

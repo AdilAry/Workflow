@@ -15,9 +15,15 @@ listed, and add what they find to the issues in step 5. Steps listed under "At /
    section of AGENTS.md and the plan or spec it points to. Take the role of the person in "For"; if
    there is none, a sceptical user who has to rely on this next week.
 2. Then open the repo. Run Check and, if the project has one, the whole Done gate. Use the
-   product the way that person would, starting from the hand-in or the demo link and its
-   README alone: every setup step you had to take is an issue. For anything you can't do
-   yourself (hardware, a screen, a real account) ask me, one request at a time.
+   product the way that person would, with only the setup they would have:
+   - If AGENTS.md has "Demo access": start from the hand-in or the demo link and its README
+     alone. Every step beyond what "Demo access" promises is an issue.
+   - Otherwise: start from "How to run" in PROGRESS.md. What it says a machine needs first
+     (tools, versions, hardware, accounts) is expected; every other step you had to take is
+     an issue.
+   A step that the README or "How to run" gives but that fails as written is an issue too.
+   For anything you can't do yourself (hardware, a screen, a real account) ask me, one
+   request at a time.
 3. Score it, with evidence for each score. Use "Judged on" from AGENTS.md if it is there.
    Otherwise: does what the spec says (per requirement: the evidence, or the gap), sound
    method, clear result, usable next week, data and secrets handled properly.
