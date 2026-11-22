@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Create a new short-loop project from templates/project. Linux and macOS.
-# On Windows, copy the folder by hand (WORKFLOW.md section 3).
+# Create a new short-loop project from templates/project. Linux and macOS, and
+# Windows in Git Bash (the default parent is then %USERPROFILE%\projects).
 #
 #     bash new-project.sh <name> [parent-dir]        default parent: ~/projects
 #

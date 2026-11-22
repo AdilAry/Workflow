@@ -18,12 +18,11 @@ The fix is to split files by **how often they are read**:
 |---|---|---|---|---|
 | User-level file (`~/.claude/CLAUDE.md`) | About me, my machines, rules for every project | Every session, every project | ~50 lines | Me, once |
 | `AGENTS.md` (project) | Facts about this project, Check, Done gate, read-when pointers | Every session in this project | under ~120 lines | The agent at setup, from my answers (`/idea`); later only when I ask |
-| `CLAUDE.md` (project) | One line, `@AGENTS.md` | By Claude Code, to find AGENTS.md | 1 line | Nobody |
 | `PROGRESS.md` | Current state only | Start of every session | under ~60 lines | Agent, via `/wrap` |
 | `docs/plan.md` | What each task must deliver, and its "Done when" | At a task's start, its section only | Any | The agent at setup, from my answers (`/idea`) |
 | `docs/history.md` | Finished tasks, judge passes, review rounds | Only when asked | Any (append only) | Agent |
 | `docs/decisions.md` | Decisions with reasons and rejected options | When a decision is questioned | Any | Agent |
-| `docs/data.md` (optional) | Data rules: units, joins, timing, thresholds | Before changing data code | As needed | Me, then the agent |
+| `docs/data.md` (data projects) | Data rules: units, joins, timing, thresholds, once AGENTS.md's 5 lines are not enough | Before changing data code | As needed | Agent, from my rules |
 | `docs/notes/` | Short summaries of long sources (specs, datasheets) | When a task needs one | Short each | Agent |
 | Commands `/idea`, `/start`, `/wrap`, `/judge` | The session steps | When I type them | Short | Installed once per machine |
 
@@ -53,9 +52,9 @@ The optional sections are how one template serves different kinds of project. A 
 The templates contain no other square brackets (no Markdown links or checkboxes). So any `[` left in AGENTS.md or docs/plan.md means something is unfinished. `/idea` runs this check itself; after an edit by hand, run it yourself:
 
 ```powershell
-Select-String -Pattern '\[' -Path AGENTS.md, docs\plan.md, docs\data.md
+Select-String -Pattern '\[' -Path AGENTS.md, docs\plan.md
 ```
-Bash: `grep -n '\[' AGENTS.md docs/plan.md docs/data.md`
+Bash: `grep -n '\[' AGENTS.md docs/plan.md`
 
 In the files the agent maintains (PROGRESS.md, history.md, decisions.md), the brackets only show the format; the agent fills them.
 
@@ -67,67 +66,23 @@ In the files the agent maintains (PROGRESS.md, history.md, decisions.md), the br
 
 This makes `/idea`, `/start`, `/wrap` and `/judge` exist in every project, and installs the user-level file if there is none yet. Keep this folder in one fixed place: on Linux the commands are links into it.
 
-**Linux (and macOS):**
+**Linux and macOS, and Windows in Git Bash** (it comes with Git for Windows, which Claude Code needs):
 ```bash
 bash install.sh
 ```
-The commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run. Type `/` in a new session to see that they are offered; if a harness doesn't show linked commands, use `bash install.sh --copy`. It also saves this folder as `WORKFLOW_DIR` in `~/.bashrc`, for kits (§8). For Claude Code it creates `~/.claude/settings.json` with medium as the default effort, but only if there is none; an existing one is never edited, and the script prints the line to add instead.
+On Linux the commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run; if a harness doesn't show linked commands, use `bash install.sh --copy`. On Windows links don't work, so it copies them: run it again after every `git pull`. Type `/` in a new session to see that they are offered.
 
-**Windows (PowerShell, Claude Code), from this folder:**
-```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\commands" | Out-Null
-```
-```powershell
-Copy-Item templates\commands\*.md "$env:USERPROFILE\.claude\commands\"
-```
-```powershell
-if (-not (Test-Path "$env:USERPROFILE\.claude\CLAUDE.md")) { Copy-Item templates\user-level\AGENTS.md "$env:USERPROFILE\.claude\CLAUDE.md" }
-```
-```powershell
-[Environment]::SetEnvironmentVariable("WORKFLOW_DIR", (Get-Location).Path, "User")
-```
-```powershell
-if (-not (Test-Path "$env:USERPROFILE\.claude\settings.json")) { Set-Content -Encoding ascii "$env:USERPROFILE\.claude\settings.json" '{ "effortLevel": "medium" }' }
-```
-These are copies: repeat the second line when the commands change. The fourth line saves this folder as `WORKFLOW_DIR`, for kits (§8); new terminals see it. Run it again if the folder moves. The last line makes medium the default effort (`/start` and `/judge` raise it to high for their own turn, §4), but only if you have no settings file yet. If you have one, add `"effortLevel": "medium"` to it yourself; neither this line nor `install.sh` edits it, because it may hold your permissions and hooks.
+It also saves this folder as `WORKFLOW_DIR`, for kits (§8): in `~/.bashrc`, and on Windows as a user variable too, which PowerShell reads. For Claude Code it creates `~/.claude/settings.json` with medium as the default effort (`/start` and `/judge` raise it to high for their own turn, §4), but only if there is none. An existing one is never edited, because it may hold your permissions and hooks: the script prints the line to add instead.
 
 Then open the user-level file once and fill its one bracket.
 
 ### Per project
 
-**Linux:** `bash new-project.sh <name>` creates `~/projects/<name>` from `templates/project/`, puts the name in and makes the first commit.
-
-**Windows (PowerShell):** these steps do what `new-project.sh` does. Run them one at a time in a new terminal. In the first two lines, change only what is in quotes.
-
-1. Set the name (lowercase letters, digits, `-` and `_`) and the workflow folder:
-   ```powershell
-   $name = "myproject"; $wf = "C:\path\to\this\folder"
-   ```
-2. Git must know who you are. Both lines must print something; if one doesn't, set it with `git config --global user.name "Your Name"` (and `user.email`):
-   ```powershell
-   git config user.name; git config user.email
-   ```
-3. Create the folder. This fails if it already exists, which is what you want:
-   ```powershell
-   New-Item -ItemType Directory "$env:USERPROFILE\projects\$name" | Out-Null; Set-Location "$env:USERPROFILE\projects\$name"
-   ```
-4. No parent folder may hold its own instruction file (see the warning below). This must print nothing:
-   ```powershell
-   $d = (Get-Item ..); while ($d) { 'AGENTS.override.md','AGENTS.md','CLAUDE.md' | % { Join-Path $d.FullName $_ } | ? { Test-Path $_ }; $d = $d.Parent }
-   ```
-   If it prints a file, go back to the parent folder, delete the new folder, and pick a parent outside that file's folder.
-5. Copy the starter and add the notes folder:
-   ```powershell
-   Copy-Item -Recurse -Force "$wf\templates\project\*" .; New-Item -ItemType Directory -Force docs\notes | Out-Null
-   ```
-6. Put the name in. This writes UTF-8, so `·`, `–` and `→` survive in Windows PowerShell 5.1:
-   ```powershell
-   Get-ChildItem -Recurse -File -Filter *.md | % { $t = [IO.File]::ReadAllText($_.FullName); if ($t.Contains('[project name]')) { [IO.File]::WriteAllText($_.FullName, $t.Replace('[project name]', $name)) } }
-   ```
-7. Make the first commit:
-   ```powershell
-   git init -q -b main; git add -A; git commit -q -m "Start $name from the short-loop starter"
-   ```
+In a terminal (Windows: Git Bash), from this folder:
+```bash
+bash new-project.sh <name>
+```
+It creates `~/projects/<name>` (Windows: `%USERPROFILE%\projects\<name>`) from `templates/project/`, puts the name in and makes the first commit. It refuses if git doesn't know your name and email yet, and says how to set them. A second argument picks another parent folder.
 
 Then, on either machine, start the agent in the project:
 1. `/idea` followed by the idea in a few sentences. The agent asks one question at a time, top down (what and why, then how, then in what order), each with a suggested answer. Then it fills in AGENTS.md and docs/plan.md, deletes the sections and docs that don't apply, and runs the bracket check.
@@ -138,7 +93,7 @@ A kit's project starts from the kit's own steps instead (Embed_WF and Gamedev_WF
 
 **Don't create a project inside another project, or inside this folder.** Agents load instruction files from every parent folder as well (pi walks up to the filesystem root, and Claude Code does the same for CLAUDE.md), so the inner project would silently get the outer one's instructions in every session. `new-project.sh` refuses when it sees that.
 
-**For an existing codebase** there is no M0: copy only AGENTS.md, CLAUDE.md, PROGRESS.md and `docs/history.md`, `docs/decisions.md`; write the real Check command; and start with `/start <the bug or feature>`.
+**For an existing codebase** there is no M0: copy only AGENTS.md, PROGRESS.md and `docs/history.md`, `docs/decisions.md`; write the real Check command; and start with `/start <the bug or feature>`.
 
 ---
 
@@ -179,7 +134,7 @@ Claude Code is the agent. pi is for the future, once I can host my own models: C
 
 | | Claude Code | pi (later) |
 |---|---|---|
-| Project instructions | `CLAUDE.md`, which imports AGENTS.md. From v2.1.277 it also reads AGENTS.md by itself when there is no CLAUDE.md | AGENTS.md. In each folder pi loads one file: `AGENTS.override.md`, else `AGENTS.md`, else `CLAUDE.md` |
+| Project instructions | AGENTS.md, read by itself from v2.1.277, as long as there is no `CLAUDE.md`, `CLAUDE.local.md` or `.claude/CLAUDE.md` in the project or a parent folder (`~/.claude/CLAUDE.md` doesn't count) | AGENTS.md. In each folder pi loads one file: `AGENTS.override.md`, else `AGENTS.md`, else `CLAUDE.md` |
 | User-level file | `~/.claude/CLAUDE.md` | `~/.pi/agent/AGENTS.md` (pi does not read `~/.claude/`) |
 | Commands | `~/.claude/commands/*.md` | `~/.pi/agent/prompts/*.md` (pi does not read `.claude/commands/`) |
 | New task, new session | `/clear` | `/new` |
@@ -189,7 +144,7 @@ Claude Code is the agent. pi is for the future, once I can host my own models: C
 | Asks before running a command | yes | **never**: run it in a container or a separate user account |
 | Paid by | a Claude plan | OpenAI login, Copilot or an API key. Claude plan limits don't cover pi |
 
-The one-line `CLAUDE.md` is safe to keep on any version: Claude Code's docs say the import never makes it read AGENTS.md twice. To see what a session really loaded, run `/context all` in Claude Code and look under "Memory files".
+So a project needs no `CLAUDE.md`. If it has one (a kit's template, or a version older than v2.1.277), Claude Code reads that file instead, so it must hold the line `@AGENTS.md`. The "Project instructions" setting in `/config` stays at its default (CLAUDE.md or AGENTS.md). To see what a session really loaded, run `/context all` in Claude Code and look under "Memory files".
 
 Because the memory is in the files, switching agent later needs no migration: the next session just starts in the other agent.
 
@@ -217,7 +172,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 | Project | Check command | M1 foundation | Notes |
 |---|---|---|---|
-| Data app (Python) | `pytest` | Load and clean data, rules, tests | Keep the `Data` section and `docs/data.md` |
+| Data app (Python) | `pytest` | Load and clean data, rules, tests | Keep the `Data` section; its rules move to `docs/data.md` when they outgrow 5 lines |
 | Competition or client demo | as above | as above | The Pitch_WF kit adds the `Competition` section (budget and time table, official score, first-question check, submission dry run, freeze, AI log) and the presentation materials: deck, video, write-up. |
 | Embedded | Host-side tests (e.g. `pio test -e native`) plus the build | Hardware abstraction layer, drivers, logic tested on the PC | Pin map and errata go in `docs/hardware.md`, with a read-when row. For ESP32 with a test bench, the Embed_WF kit builds on this workflow. |
 | Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks. For Godot games, the Gamedev_WF kit builds on this workflow; its simulation tools fit strategy and sim games best. |
@@ -240,7 +195,7 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 - **Where the workflow lives:** `WORKFLOW_DIR`, which §3 sets once per machine. A kit reads it to find this folder, for instance to copy `templates/project/` files, and stops with a clear message if it isn't set. It never guesses a path.
 - **Git commands the workflow runs:** `git pull` (`/start`); `git status`, `git add`, `git commit`, `git show --stat`, and `git push` only as Push allows (`/wrap`); `git add` and `git commit` (`/judge`). A kit that sets up permissions, such as a Claude Code allowlist, allows at least these plus its own Check and Done gate commands, so a session never waits on a prompt the workflow causes. It may add other read-only commands the agent uses while working, such as `git diff` and `git log`. When a command changes the git commands it runs, this line and the date change with it.
 - **Not in the core:** anything only competitions use (budget, official score, hand-in, first-question check, submission dry run, freeze, AI log). A kit that needs it brings it in its own template, with its review steps under "At /judge also".
-- **Installing a kit's commands:** Linux: `bash "$WORKFLOW_DIR/install.sh" <kit commands folder>`. Windows: the commands `Copy-Item` line from §3, run a second time with the kit's folder. Kit commands use the same file format as `templates/commands/`.
+- **Installing a kit's commands:** `bash "$WORKFLOW_DIR/install.sh" <kit commands folder>` (Windows: in Git Bash). On Windows a kit may instead copy its commands into `%USERPROFILE%\.claude\commands` itself, for instance with PowerShell's `Copy-Item`. Kit commands use the same file format as `templates/commands/`.
 
 ---
 
@@ -314,7 +269,9 @@ No new step in a session: the checks that already existed ask more. The one new 
 | Writing projects "don't fit" | They fit as no-code tasks, each ending "awaiting my check" (§8) | `/start` already handles tasks without code. |
 | Every append to docs/history.md read the whole file first (Claude Code's Edit needs a read) | `/start`, `/wrap` and `/judge` read only its end (`tail -n 15`); `/judge final` finds the last judge pass with `grep` and reads only that entry | The file only grows, so the cost of each append grew with the project. `tail` and `grep` need no permission prompt, and `tail` counts as the read Edit needs. Appending with `cat >>` would have prompted on every wrap. |
 | The core template and `/judge` carried a `Competition` section, four competition plan sections, three competition review steps and `docs/ai_log.md` | All of it moves to the Pitch_WF kit; the §8 list says so, and its date is 22 November 2026. The date rule now also covers material that leaves the core | 28 of the 93 brackets, and three `/judge` steps, served only competitions, and Pitch_WF already adds everything else a competition needs. Embed_WF and Gamedev_WF use none of it, so their 21 November date still holds. |
-| Nothing said which model or effort to use; I set Opus high for planning and judging, medium otherwise, by hand | `effort: high` in `/start` and `/judge`. It lasts for the turn the command runs: the plan at Gate 1, and the review. Medium is the default: `install.sh` (Windows: one line in §3) creates `~/.claude/settings.json` with it, only if there is no such file | Thinking and output are what effort changes, and output costs most. On Opus 5.5 with a subscription, changing effort keeps the prompt cache; a model switch (such as `opusplan`) starts a fresh one. A turn after `/judge` asks me something runs at the session's effort. An existing settings file is never edited (it may hold permissions and hooks, and Claude Code writes to it), and `CLAUDE_CODE_EFFORT_LEVEL` would outrank the commands' `effort: high`. |
+| Nothing said which model or effort to use; I set Opus high for planning and judging, medium otherwise, by hand | `effort: high` in `/start` and `/judge`. It lasts for the turn the command runs: the plan at Gate 1, and the review. Medium is the default: `install.sh` creates `~/.claude/settings.json` with it, only if there is no such file | Thinking and output are what effort changes, and output costs most. On Opus 5.5 with a subscription, changing effort keeps the prompt cache; a model switch (such as `opusplan`) starts a fresh one. A turn after `/judge` asks me something runs at the session's effort. An existing settings file is never edited (it may hold permissions and hooks, and Claude Code writes to it), and `CLAUDE_CODE_EFFORT_LEVEL` would outrank the commands' `effort: high`. |
+| Windows setup was 5 PowerShell install lines and 7 per-project steps that restated the two scripts | `install.sh` and `new-project.sh` run in Git Bash. There `install.sh` copies instead of linking and also saves `WORKFLOW_DIR` as a Windows user variable (§3) | One way on both machines, and no second copy of each script to keep in step. Git Bash comes with Git for Windows, which Claude Code needs. `ln -s` in Git Bash silently makes a copy, so link mode would have said "linked" wrongly. A kit may still copy its commands with PowerShell (§8), so the contract date stays. |
+| 17 core files, against a limit of 15 | 14: `efficient-ai-tools.md` left the repo, `templates/project/docs/data.md` and the one-line `templates/project/CLAUDE.md` are gone | The tool notes are mine, and no command, template or kit read them. `data.md` repeated the Data section's sources and licences; its headings now sit in that section, and the agent creates the file once the rules outgrow 5 lines. Claude Code reads AGENTS.md by itself from v2.1.277 when there is no CLAUDE.md. No kit used these files, so the contract date stays. |
 | I filled in about 50 brackets in AGENTS.md and plan.md (93 with every optional section kept), and the agent's questions were an optional step afterwards | `/idea`: the agent asks one question at a time, top down, each with a suggested answer, then fills both files and runs the bracket check; I approve them (§3) | Most of the setup effort was those two files. Answering a suggestion is faster than filling a field, and the agent deletes the sections that don't apply. It isn't called `/define`, because both kits have their own. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.

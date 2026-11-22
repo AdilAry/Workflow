@@ -31,7 +31,7 @@ Loaded in every session. Keep it under ~120 lines once filled in: only facts tha
 
 ## Data [IF the project uses data]
 - **Source:** [files, API or sensor, and where they live].
-- **Rules that always hold:** [at most 5 lines; anything longer goes in docs/data.md].
+- **Rules that always hold:** [at most 5 lines]. Once they need more, move them to docs/data.md, under Units and formats, Keys and joins (an ambiguous join is flagged, never forced), Timing (a decision uses only what was published before its time) and Thresholds (named constants, each with its source). Every rule there holds in the code and has a test.
 - **Licences:** [each source, its licence and the attribution text].
 - **Sending data to an external AI:** [not allowed: work from column names and synthetic fixtures | allowed by the owner, named here, for what].
 - **Model:** [none, because ... | what it predicts, and from what]. Trained or tuned, checked on a held-out split against a baseline; the score and its limits are stated wherever the result is shown.
@@ -50,7 +50,7 @@ Loaded in every session. Keep it under ~120 lines once filled in: only facts tha
 | `docs/decisions.md` | a decision is questioned or about to change |
 | `docs/history.md` | I ask what happened earlier, or a judge pass compares results |
 | `docs/notes/` | the task needs a source summarised there |
-| [IF data] `docs/data.md` | before changing code that loads, joins or computes data |
+| [IF data] `docs/data.md`, once it exists | before changing code that loads, joins or computes data |
 | [another file] | [when] |
 
 ## Files

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install (or refresh) the short-loop workflow for the agents on this machine.
-# Linux and macOS. On Windows, use the PowerShell lines in WORKFLOW.md section 3.
+# Linux and macOS. On Windows, run it in Git Bash (it comes with Git for Windows):
+# there it always copies, and it also saves WORKFLOW_DIR as a Windows variable.
 #
 #     bash install.sh [--copy] [extra-commands-dir ...]
 #
@@ -45,6 +46,11 @@ for arg in "$@"; do
   esac
 done
 
+# Windows (Git Bash): ln -s silently makes a copy there, so copy on purpose,
+# and save WORKFLOW_DIR for PowerShell too, which doesn't read ~/.bashrc.
+WINDOWS=0
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) WINDOWS=1; MODE="copy" ;; esac
+
 install_for() {   # <name> <commands-dir> <global-instructions-file>
   local name="$1" cmd_dir="$2" global="$3" src f dest
   echo "$name:"
@@ -88,6 +94,11 @@ if ! grep -qxF "$LINE" "$RC" 2>/dev/null; then
   echo "$LINE" >> "$RC"
   echo "Saved WORKFLOW_DIR=$HERE in ~/.bashrc (open a new terminal to use it)"
 fi
+if [[ $WINDOWS -eq 1 ]]; then
+  WIN_HERE="$(cygpath -w "$HERE")"
+  setx WORKFLOW_DIR "$WIN_HERE" >/dev/null
+  echo "Saved WORKFLOW_DIR=$WIN_HERE for Windows too (new terminals see it)"
+fi
 
 found=0
 PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
@@ -118,6 +129,8 @@ fi
 if [[ "$MODE" == link ]]; then
   echo "Done (linked). Type / in a new session: /idea, /start, /wrap and /judge must be offered."
   echo "If they are not, run:  bash \"$HERE/install.sh\" --copy"
+elif [[ $WINDOWS -eq 1 ]]; then
+  echo "Done (copied: Windows can't link them). Run this again after every git pull in this folder."
 else
   echo "Done (copied). Run this again whenever the commands change."
 fi
