@@ -1,6 +1,7 @@
 ---
 description: Start a short session on one task - a plan section, an ID, or free text
 argument-hint: task, e.g. M2 or "fix the export" (empty = Next in PROGRESS.md)
+effort: high
 ---
 Task for this session: $ARGUMENTS
 

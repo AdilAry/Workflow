@@ -1,6 +1,7 @@
 ---
 description: Review the project with fresh eyes, as a sceptical user or judge - run it in a new session, never in the one that built the work
 argument-hint: empty for the judge pass, "final" for the final review
+effort: high
 ---
 Review type: $ARGUMENTS (empty means the judge pass)
 

@@ -71,7 +71,7 @@ This makes `/idea`, `/start`, `/wrap` and `/judge` exist in every project, and i
 ```bash
 bash install.sh
 ```
-The commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run. Type `/` in a new session to see that they are offered; if a harness doesn't show linked commands, use `bash install.sh --copy`. It also saves this folder as `WORKFLOW_DIR` in `~/.bashrc`, for kits (§8).
+The commands are linked, so later a `git pull` (or an edit) in this folder updates them with nothing to re-run. Type `/` in a new session to see that they are offered; if a harness doesn't show linked commands, use `bash install.sh --copy`. It also saves this folder as `WORKFLOW_DIR` in `~/.bashrc`, for kits (§8). For Claude Code it creates `~/.claude/settings.json` with medium as the default effort, but only if there is none; an existing one is never edited, and the script prints the line to add instead.
 
 **Windows (PowerShell, Claude Code), from this folder:**
 ```powershell
@@ -86,7 +86,10 @@ if (-not (Test-Path "$env:USERPROFILE\.claude\CLAUDE.md")) { Copy-Item templates
 ```powershell
 [Environment]::SetEnvironmentVariable("WORKFLOW_DIR", (Get-Location).Path, "User")
 ```
-These are copies: repeat the second line when the commands change. The last line saves this folder as `WORKFLOW_DIR`, for kits (§8); new terminals see it. Run it again if the folder moves.
+```powershell
+if (-not (Test-Path "$env:USERPROFILE\.claude\settings.json")) { Set-Content -Encoding ascii "$env:USERPROFILE\.claude\settings.json" '{ "effortLevel": "medium" }' }
+```
+These are copies: repeat the second line when the commands change. The fourth line saves this folder as `WORKFLOW_DIR`, for kits (§8); new terminals see it. Run it again if the folder moves. The last line makes medium the default effort (`/start` and `/judge` raise it to high for their own turn, §4), but only if you have no settings file yet. If you have one, add `"effortLevel": "medium"` to it yourself; neither this line nor `install.sh` edits it, because it may hold your permissions and hooks.
 
 Then open the user-level file once and fill its one bracket.
 
@@ -141,7 +144,7 @@ A kit's project starts from the kit's own steps instead (Embed_WF and Gamedev_WF
 
 ## 4. A session
 
-**Start:** `/start M2` (or any task, e.g. `/start fix the export`; with nothing, it takes "Next" from PROGRESS.md). The agent pulls, reads PROGRESS.md and the task's section of plan.md, and proposes a plan of at most 5 bullets ending in **done when:** the exact command that will prove it. For a task with no code (docs, research, a decision), "done when" is a file that must exist, what it must say, and my approval; the agent doesn't invent a check. Correct the plan or OK it; nothing changes before my OK. *(Gate 1.)*
+**Start:** `/start M2` (or any task, e.g. `/start fix the export`; with nothing, it takes "Next" from PROGRESS.md). The agent pulls, reads PROGRESS.md and the task's section of plan.md, and proposes a plan of at most 5 bullets ending in **done when:** the exact command that will prove it. For a task with no code (docs, research, a decision), "done when" is a file that must exist, what it must say, and my approval; the agent doesn't invent a check. Correct the plan or OK it; nothing changes before my OK. *(Gate 1.)* The plan is made at high effort (`effort: high` in the command); the work after my OK runs at the session's own effort, and so do `/wrap` and `/idea`. `/judge` reviews at high effort too.
 
 If the last session left something "awaiting my check", `/start` asks about that first.
 
@@ -225,7 +228,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 ### Building a kit on this workflow
 
-A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
+A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date. Change the date too when the core drops or moves something a kit used, even if no listed word changes.
 
 **Contract of 22 November 2026.** A kit's README names the date it was written against.
 
@@ -302,7 +305,7 @@ No new step in a session: the checks that already existed ask more. The one new 
 | Lessons kept in a "Remember" list | Put into a step that already exists (§7) | A lesson from the dry run sat in that list and was not applied. |
 | `/judge` counted every setup step as an issue, in every project | Only with "Demo access" does it start from the hand-in alone. Otherwise the setup that PROGRESS.md "How to run" says a machine needs is expected, and only steps beyond it, or steps that fail as written, are issues | Both kits found that every pass would have flagged the dev box, the boards or the Godot install. One rule in `/judge` instead of a workaround in each kit. |
 
-### From the workflow review (21 November 2026)
+### From the workflow review (21–22 November 2026)
 
 | Before | Now | Why |
 |---|---|---|
@@ -310,7 +313,8 @@ No new step in a session: the checks that already existed ask more. The one new 
 | The stop rules were written out in both `/start` and §4 | Only in `/start` step 7; §4 points there | One fact, one place. §4 had already lost detail that `/start` has. |
 | Writing projects "don't fit" | They fit as no-code tasks, each ending "awaiting my check" (§8) | `/start` already handles tasks without code. |
 | Every append to docs/history.md read the whole file first (Claude Code's Edit needs a read) | `/start`, `/wrap` and `/judge` read only its end (`tail -n 15`); `/judge final` finds the last judge pass with `grep` and reads only that entry | The file only grows, so the cost of each append grew with the project. `tail` and `grep` need no permission prompt, and `tail` counts as the read Edit needs. Appending with `cat >>` would have prompted on every wrap. |
-| The core template and `/judge` carried a `Competition` section, four competition plan sections, three competition review steps and `docs/ai_log.md` | All of it moves to the Pitch_WF kit; the §8 list says so, and its date is 22 November 2026 | 28 of the 93 brackets, and three `/judge` steps, served only competitions, and Pitch_WF already adds everything else a competition needs. Embed_WF and Gamedev_WF use none of it, so their 21 November date still holds. |
+| The core template and `/judge` carried a `Competition` section, four competition plan sections, three competition review steps and `docs/ai_log.md` | All of it moves to the Pitch_WF kit; the §8 list says so, and its date is 22 November 2026. The date rule now also covers material that leaves the core | 28 of the 93 brackets, and three `/judge` steps, served only competitions, and Pitch_WF already adds everything else a competition needs. Embed_WF and Gamedev_WF use none of it, so their 21 November date still holds. |
+| Nothing said which model or effort to use; I set Opus high for planning and judging, medium otherwise, by hand | `effort: high` in `/start` and `/judge`. It lasts for the turn the command runs: the plan at Gate 1, and the review. Medium is the default: `install.sh` (Windows: one line in §3) creates `~/.claude/settings.json` with it, only if there is no such file | Thinking and output are what effort changes, and output costs most. On Opus 5.5 with a subscription, changing effort keeps the prompt cache; a model switch (such as `opusplan`) starts a fresh one. A turn after `/judge` asks me something runs at the session's effort. An existing settings file is never edited (it may hold permissions and hooks, and Claude Code writes to it), and `CLAUDE_CODE_EFFORT_LEVEL` would outrank the commands' `effort: high`. |
 | I filled in about 50 brackets in AGENTS.md and plan.md (93 with every optional section kept), and the agent's questions were an optional step afterwards | `/idea`: the agent asks one question at a time, top down, each with a suggested answer, then fills both files and runs the bracket check; I approve them (§3) | Most of the setup effort was those two files. Answering a suggestion is faster than filling a field, and the agent deletes the sections that don't apply. It isn't called `/define`, because both kits have their own. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.
