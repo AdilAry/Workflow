@@ -24,7 +24,9 @@ listed, and add what they find to the issues in step 4. Steps listed under "At /
    request at a time.
 3. Score it, with evidence for each score. Use "Judged on" from AGENTS.md if it is there.
    Otherwise: does what the spec says (per requirement: the evidence, or the gap), sound
-   method, clear result, usable next week, data and secrets handled properly.
+   method, clear result, usable next week, data and secrets handled properly. Read some of the
+   tests too: a test that only repeats the implementation (it asserts the value the code
+   hard-codes) proves nothing, and counts as an issue.
 4. List the issues ranked by how much each would change the result, with the hours of fixing
    next to each. Don't drop a large gap for being large: say what it would cost and what it
    would replace. Don't fix anything; I decide.
