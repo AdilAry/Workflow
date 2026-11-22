@@ -24,7 +24,6 @@ The fix is to split files by **how often they are read**:
 | `docs/history.md` | Finished tasks, judge passes, review rounds | Only when asked | Any (append only) | Agent |
 | `docs/decisions.md` | Decisions with reasons and rejected options | When a decision is questioned | Any | Agent |
 | `docs/data.md` (optional) | Data rules: units, joins, timing, thresholds | Before changing data code | As needed | Me, then the agent |
-| `docs/ai_log.md` (optional) | AI tools used, for the README and disclosures | At the end | Any | Agent |
 | `docs/notes/` | Short summaries of long sources (specs, datasheets) | When a task needs one | Short each | Agent |
 | Commands `/idea`, `/start`, `/wrap`, `/judge` | The session steps | When I type them | Short | Installed once per machine |
 
@@ -47,9 +46,9 @@ Sizes are rough guides. To see the real cost, look at the context use at the sta
 | `[value]` | Suggested default: keep or change it, then remove the brackets | `[16]` → `16` |
 | `[a \| b \| c]` | Choose one; delete the rest | `[local only \| where]` → `local only` |
 | `[IF condition]` on a line | The line applies only if the condition holds. If it does, delete the marker; if not, delete the line | `[IF deployed] Deployed and reachable on a phone` |
-| `[IF condition]` in a heading | The same for the **whole section** under that heading | `## Competition [IF someone else judges the result ...]` |
+| `[IF condition]` in a heading | The same for the **whole section** under that heading | `## Data [IF the project uses data]` |
 
-The optional sections are how one template serves different kinds of project. A plain project deletes `Problem`, `Competition` and `Data` from AGENTS.md and is left with about 50 lines. A hackathon keeps `Competition`. A data app keeps `Data`.
+The optional sections are how one template serves different kinds of project. A plain project deletes `Problem` and `Data` from AGENTS.md and is left with about 50 lines. A data app keeps `Data`. A competition gets its own section from the Pitch_WF kit (§8).
 
 The templates contain no other square brackets (no Markdown links or checkboxes). So any `[` left in AGENTS.md or docs/plan.md means something is unfinished. `/idea` runs this check itself; after an edit by hand, run it yourself:
 
@@ -58,7 +57,7 @@ Select-String -Pattern '\[' -Path AGENTS.md, docs\plan.md, docs\data.md
 ```
 Bash: `grep -n '\[' AGENTS.md docs/plan.md docs/data.md`
 
-In the files the agent maintains (PROGRESS.md, history.md, decisions.md, ai_log.md), the brackets only show the format; the agent fills them.
+In the files the agent maintains (PROGRESS.md, history.md, decisions.md), the brackets only show the format; the agent fills them.
 
 ---
 
@@ -216,7 +215,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 | Project | Check command | M1 foundation | Notes |
 |---|---|---|---|
 | Data app (Python) | `pytest` | Load and clean data, rules, tests | Keep the `Data` section and `docs/data.md` |
-| Competition or client demo | as above | as above | Keep the `Competition` section: it adds the budget, the time table, the AI log, the official score and the submission dry run. For a deck, a video and the pitch card, the Pitch_WF kit builds on this workflow. |
+| Competition or client demo | as above | as above | The Pitch_WF kit adds the `Competition` section (budget and time table, official score, first-question check, submission dry run, freeze, AI log) and the presentation materials: deck, video, write-up. |
 | Embedded | Host-side tests (e.g. `pio test -e native`) plus the build | Hardware abstraction layer, drivers, logic tested on the PC | Pin map and errata go in `docs/hardware.md`, with a read-when row. For ESP32 with a test bench, the Embed_WF kit builds on this workflow. |
 | Game (Godot) | Headless tests (GUT or gdUnit4) | Core loop and game state | Game feel is yours to tune: expose values as exported variables, and expect "awaiting my check" on most tasks. For Godot games, the Gamedev_WF kit builds on this workflow; its simulation tools fit strategy and sim games best. |
 | Existing codebase | Its own test command | none | No M0; see §3 |
@@ -228,7 +227,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own commands for one kind of project. It should work with whichever version of this workflow is installed. To make that possible, it relies only on the list below and never copies or restates anything else from this folder. If a kit needs a word that isn't listed, add the word here first, and change the date.
 
-**Contract of 21 November 2026.** A kit's README names the date it was written against.
+**Contract of 22 November 2026.** A kit's README names the date it was written against.
 
 - **Commands:** `/start <task>`, `/wrap <note>`, `/judge [final]`.
 - **AGENTS.md fields the commands read:** Check, Done gate, Run limit, Push, "At /start also", "At /wrap also", "Read only when needed", "Judged on", "At /judge also" and "At /judge also (final)" (all three read by `/judge`). The two "also" fields of `/start` and `/wrap` are where a kit adds steps to the bookkeeping at the start and end of a session; "At /judge also" is where it adds review steps, which `/judge` does first, and "At /judge also (final)" holds those that run only in the final review. A project's AGENTS.md may list an "also" field in more than one section; the commands do them all. Everything else in a kit's AGENTS.md is project facts that the agent follows while it works, such as the order in which test tiers run. The kit's AGENTS.md doesn't repeat the loop or its stop rules; those live in `/start`.
@@ -237,6 +236,7 @@ A kit (Embed_WF or Gamedev_WF, for instance) adds a project template and its own
 - **The plan:** any file that "Read only when needed" points to. Each task in it has a "Done when", or the Done gate applies. If the plan has checkboxes, `/start` and `/wrap` tick them. A kit that marks finished tasks some other way (a status column, say) does it in its "At /start also" and "At /wrap also" steps.
 - **Where the workflow lives:** `WORKFLOW_DIR`, which §3 sets once per machine. A kit reads it to find this folder, for instance to copy `templates/project/` files, and stops with a clear message if it isn't set. It never guesses a path.
 - **Git commands the workflow runs:** `git pull` (`/start`); `git status`, `git add`, `git commit`, `git show --stat`, and `git push` only as Push allows (`/wrap`); `git add` and `git commit` (`/judge`). A kit that sets up permissions, such as a Claude Code allowlist, allows at least these plus its own Check and Done gate commands, so a session never waits on a prompt the workflow causes. It may add other read-only commands the agent uses while working, such as `git diff` and `git log`. When a command changes the git commands it runs, this line and the date change with it.
+- **Not in the core:** anything only competitions use (budget, official score, hand-in, first-question check, submission dry run, freeze, AI log). A kit that needs it brings it in its own template, with its review steps under "At /judge also".
 - **Installing a kit's commands:** Linux: `bash "$WORKFLOW_DIR/install.sh" <kit commands folder>`. Windows: the commands `Copy-Item` line from §3, run a second time with the kit's folder. Kit commands use the same file format as `templates/commands/`.
 
 ---
@@ -310,6 +310,7 @@ No new step in a session: the checks that already existed ask more. The one new 
 | The stop rules were written out in both `/start` and §4 | Only in `/start` step 7; §4 points there | One fact, one place. §4 had already lost detail that `/start` has. |
 | Writing projects "don't fit" | They fit as no-code tasks, each ending "awaiting my check" (§8) | `/start` already handles tasks without code. |
 | Every append to docs/history.md read the whole file first (Claude Code's Edit needs a read) | `/start`, `/wrap` and `/judge` read only its end (`tail -n 15`); `/judge final` finds the last judge pass with `grep` and reads only that entry | The file only grows, so the cost of each append grew with the project. `tail` and `grep` need no permission prompt, and `tail` counts as the read Edit needs. Appending with `cat >>` would have prompted on every wrap. |
+| The core template and `/judge` carried a `Competition` section, four competition plan sections, three competition review steps and `docs/ai_log.md` | All of it moves to the Pitch_WF kit; the §8 list says so, and its date is 22 November 2026 | 28 of the 93 brackets, and three `/judge` steps, served only competitions, and Pitch_WF already adds everything else a competition needs. Embed_WF and Gamedev_WF use none of it, so their 21 November date still holds. |
 | I filled in about 50 brackets in AGENTS.md and plan.md (93 with every optional section kept), and the agent's questions were an optional step afterwards | `/idea`: the agent asks one question at a time, top down, each with a suggested answer, then fills both files and runs the bracket check; I approve them (§3) | Most of the setup effort was those two files. Answering a suggestion is faster than filling a field, and the agent deletes the sections that don't apply. It isn't called `/define`, because both kits have their own. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.

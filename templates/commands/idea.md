@@ -13,7 +13,8 @@ instead of filling them in myself. Each `[...]` in them is a field: `[a | b]` is
    it in a few sentences and wait.
 2. Ask me one question at a time, top down. Start a level only once the one above is settled:
    1. **What and why:** Project, Scope (one sentence, MVP, not doing, constraints), and which of
-      the optional sections apply (Problem, Competition, Data).
+      the optional sections apply (Problem, Data). If someone else judges the result against
+      criteria and a deadline, tell me that the Pitch_WF kit's /entry adds that part later.
    2. **How:** Stack (language and tools, Run, Check, Push, hardware, deploy) and the fields of
       the optional sections I kept.
    3. **In what order:** what each plan section delivers, and its "Done when".
@@ -21,9 +22,8 @@ instead of filling them in myself. Each `[...]` in them is a field: `[a | b]` is
    file, so I can just say yes. Skip a field my idea already answers, and say what you took
    from it. Go no lower than a field needs: the detail of one task belongs in its /start.
 3. Write both files. Fill every field; delete the IF lines and sections that don't apply, and
-   the markers on those that do. If the Data or Competition section is gone, delete
-   docs/data.md or docs/ai_log.md too, with its row in "Read only when needed". Keep AGENTS.md
-   under ~120 lines.
+   the markers on those that do. If the Data section is gone, delete docs/data.md too, with
+   its row in "Read only when needed". Keep AGENTS.md under ~120 lines.
 4. Run `grep -n '\[' AGENTS.md docs/plan.md` (add docs/data.md if it is kept) and fix what it
    finds, until it finds nothing.
 5. Reply in 5 lines or fewer: what you assumed without asking, and anything still waiting on a
