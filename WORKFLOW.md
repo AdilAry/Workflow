@@ -113,7 +113,7 @@ Ending in the middle of a task is fine: `/wrap` records exactly where it stopped
 
 **Habits that keep context clean:**
 - **Wrong path? Go back** to before the attempt and re-prompt with what you learned. Correcting ("no, try B") leaves the failed attempt in context, where it keeps steering the agent.
-- **Watch the context.** Around 40% full, finish the current step and wrap.
+- **Watch the context.** The stop rules in `/start` step 7 are what end a session that goes wrong. As a backstop: past about 200k tokens (`/context`), finish the current step and wrap. A one-task session used about 60k (measured, November 2026).
 - **Big reading** (a spec, a datasheet, another codebase): give it its own session, or a subagent, that only writes a summary into `docs/notes/`. Later sessions read the note, not the source.
 - **Look, don't dump.** One huge log in the context costs more than ten small runs. Long output goes to `out/`, and only a summary into the conversation.
 - **Same mistake twice:** stop. `/wrap`, clear, and start fresh with what you learned in the first prompt.
@@ -154,7 +154,7 @@ Because the memory is in the files, switching agent later needs no migration: th
 
 | Symptom | Fix |
 |---|---|
-| A session starts at 15%+ context | Trim AGENTS.md and PROGRESS.md; move detail to `docs/`. Check that no parent folder has its own AGENTS.md or CLAUDE.md. |
+| `/context` at the start of a session shows Memory files above ~5k tokens | Trim AGENTS.md and PROGRESS.md; move detail to `docs/`. Check that no parent folder has its own AGENTS.md or CLAUDE.md. |
 | The agent works from stale information | PROGRESS.md contradicts itself: rewrite "Now" and "Next", delete resolved items. |
 | Auto-compact fired | Finish the current step, `/wrap`, start fresh. |
 | A task doesn't fit in one session | Split it in plan.md (M2a, M2b). |
@@ -276,6 +276,7 @@ No new step in a session: the checks that already existed ask more. The one new 
 | A mistake that kept coming back got a line in AGENTS.md (§7) | First a lint rule, test or type check inside Check; a line only if that can't be done | A line is loaded in every session and only asks; a check costs no context and always holds. From Matt Pocock's `retro` skill: "Default to building the check over writing the rule." |
 | A vague plan section was found out at Gate 1, when I corrected the plan | `/start` step 4: if the section names no edge cases, or its "Done when" names no command or file, the agent asks me at most 3 questions, one at a time, each with a suggested answer; after my OK it writes the answers into the section | The questions come before the plan instead of corrections after it, and the answers stay in plan.md for later sessions. Capped and conditional, unlike the open-ended grill-me skill, so a clear section costs nothing; a task with no plan section skips it. Writing waits for my OK, as step 6 requires. |
 | Nothing in the plan said which steps can't be undone | `/start`'s plan names every step git can't undo (deploy, push, send, flash fuses, delete or migrate data outside git), or "none"; each waits for my word | Everything committed can be reverted; these can't. Gate 1 is the last point before they happen, so that is where they're named, not in the `/wrap` report. |
+| Wrap at about 40% context; a session starting at 15%+ needs trimming | The stop rules end a session that goes wrong; past about 200k tokens, wrap as a backstop. Trim when Memory files at the start pass ~5k tokens | On a 1M window the percentages meant 400k and 150k: a one-task session used about 60k, so neither ever fired. No study measures where an agent session on today's models starts to decay, and measuring it myself would cost several usage windows. 200k is a judgement, not a measurement: well past a normal session and under where most studies see trouble. The start rule now watches only what the workflow controls; Claude Code's own ~34k is fixed. |
 | "A named test covers the change" said nothing about what the test checks | `/judge` step 3 reads some tests; one that only repeats the implementation is an issue | Such a test passes the Done gate and proves nothing. A question in an existing step, not a separate architecture-review session (§7: lessons go into steps that exist). |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.
