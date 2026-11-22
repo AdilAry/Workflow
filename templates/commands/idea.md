@@ -21,6 +21,8 @@ instead of filling them in myself. Each `[...]` in them is a field: `[a | b]` is
    Give every question a suggested answer, from my idea, the answers so far and the user-level
    file, so I can just say yes. Skip a field my idea already answers, and say what you took
    from it. Go no lower than a field needs: the detail of one task belongs in its /start.
+   Ask at most 12 questions in all. Fields still open after that get your suggested answer,
+   and you list them in step 5 as assumptions.
 3. Write both files. Fill every field; delete the IF lines and sections that don't apply, and
    the markers on those that do. Keep AGENTS.md under ~120 lines.
 4. Run `grep -n '\[' AGENTS.md docs/plan.md` and fix what it finds, until it finds nothing.

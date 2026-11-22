@@ -24,10 +24,6 @@
 #   pi           ~/.pi/agent/prompts/      ~/.pi/agent/AGENTS.md
 #   Claude Code  ~/.claude/commands/       ~/.claude/CLAUDE.md
 #
-# For Claude Code it also creates ~/.claude/settings.json with medium as the
-# default effort, but ONLY if there is no such file yet. An existing one is
-# never edited; the script prints the line to add instead.
-#
 # It also saves this folder as WORKFLOW_DIR in ~/.bashrc, so kits built on the
 # workflow can find it (WORKFLOW.md section 8). If the folder moves, run this
 # again. With zsh (the macOS default), copy that line to ~/.zshrc yourself.
@@ -108,17 +104,6 @@ if command -v pi >/dev/null 2>&1 || [[ -d "$PI_DIR" ]]; then
 fi
 if command -v claude >/dev/null 2>&1 || [[ -d "$HOME/.claude" ]]; then
   install_for "Claude Code" "$HOME/.claude/commands" "$HOME/.claude/CLAUDE.md"
-  # Default effort medium; /start and /judge raise it to high for their own turn.
-  # Only a missing file is created: an existing one may hold your permissions and
-  # hooks, and Claude Code writes to it too, so it is never edited.
-  SETTINGS="$HOME/.claude/settings.json"
-  if [[ ! -e "$SETTINGS" ]]; then
-    printf '{\n  "effortLevel": "medium"\n}\n' > "$SETTINGS"
-    echo "  installed $SETTINGS (default effort: medium)"
-  elif ! grep -q '"effortLevel"' "$SETTINGS"; then
-    echo "  kept your $SETTINGS; to make medium the default effort, add this to it yourself:"
-    echo "    \"effortLevel\": \"medium\""
-  fi
   found=1
 fi
 if [[ $found -eq 0 ]]; then

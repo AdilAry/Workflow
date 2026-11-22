@@ -15,7 +15,9 @@ listed, and add what they find to the issues in step 4. Steps listed under "At /
 1. Before opening the code, read the brief I attach. If nothing is attached, use the Project
    section of AGENTS.md and the plan or spec it points to. Take the role of the person in "For"; if
    there is none, a sceptical user who has to rely on this next week.
-2. Then open the repo. Run Check and, if the project has one, the whole Done gate. Use the
+2. Then open the repo. Run Check and, if the project has one, the whole Done gate. Every test
+   or build run counts against the Run limit in AGENTS.md (20 if it gives none); at the limit,
+   stop and report what you have. Use the
    product the way that person would, with only the setup they would have: start from "How
    to run" in PROGRESS.md. What it says a machine needs first (tools, versions, hardware,
    accounts) is expected; every other step you had to take is an issue. A step that the

@@ -38,11 +38,6 @@ Loaded in every session. Keep it under ~120 lines once filled in: only facts tha
 - **Generated text in the product:** [none | provider, key name in .env, notes file in docs/]. It only explains results the code has verified. It works without keys: cached answers, labelled as cached.
 - `data/raw/` is never committed if it holds personal, company-internal or unlicensed data.
 
-## Workflow
-- One task per session: `/start <task>` begins it, `/wrap` ends it, then I clear the session. A fresh session must be able to continue from PROGRESS.md alone.
-- PROGRESS.md holds the current state only. Finished work goes to docs/history.md.
-- `/judge` reviews in a fresh session, never in the one that built the work.
-
 ## Read only when needed
 | File | Read when |
 |---|---|
