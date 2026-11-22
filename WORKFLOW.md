@@ -17,16 +17,16 @@ The fix is to split files by **how often they are read**:
 | File | Holds | Loaded | Size | Edited by |
 |---|---|---|---|---|
 | User-level file (`~/.claude/CLAUDE.md`) | About me, my machines, rules for every project | Every session, every project | ~50 lines | Me, once |
-| `AGENTS.md` (project) | Facts about this project, Check, Done gate, read-when pointers | Every session in this project | under ~120 lines | Me at setup; the agent only when I ask |
+| `AGENTS.md` (project) | Facts about this project, Check, Done gate, read-when pointers | Every session in this project | under ~120 lines | The agent at setup, from my answers (`/idea`); later only when I ask |
 | `CLAUDE.md` (project) | One line, `@AGENTS.md` | By Claude Code, to find AGENTS.md | 1 line | Nobody |
 | `PROGRESS.md` | Current state only | Start of every session | under ~60 lines | Agent, via `/wrap` |
-| `docs/plan.md` | What each task must deliver, and its "Done when" | At a task's start, its section only | Any | Me at setup |
+| `docs/plan.md` | What each task must deliver, and its "Done when" | At a task's start, its section only | Any | The agent at setup, from my answers (`/idea`) |
 | `docs/history.md` | Finished tasks, judge passes, review rounds | Only when asked | Any (append only) | Agent |
 | `docs/decisions.md` | Decisions with reasons and rejected options | When a decision is questioned | Any | Agent |
 | `docs/data.md` (optional) | Data rules: units, joins, timing, thresholds | Before changing data code | As needed | Me, then the agent |
 | `docs/ai_log.md` (optional) | AI tools used, for the README and disclosures | At the end | Any | Agent |
 | `docs/notes/` | Short summaries of long sources (specs, datasheets) | When a task needs one | Short each | Agent |
-| Commands `/start`, `/wrap`, `/judge` | The session steps | When I type them | Short | Installed once per machine |
+| Commands `/idea`, `/start`, `/wrap`, `/judge` | The session steps | When I type them | Short | Installed once per machine |
 
 Sizes are rough guides. To see the real cost, look at the context use at the start of a session (§6).
 
@@ -51,7 +51,7 @@ Sizes are rough guides. To see the real cost, look at the context use at the sta
 
 The optional sections are how one template serves different kinds of project. A plain project deletes `Problem`, `Competition` and `Data` from AGENTS.md and is left with about 50 lines. A hackathon keeps `Competition`. A data app keeps `Data`.
 
-The templates contain no other square brackets (no Markdown links or checkboxes). So before the first session, any `[` left in a file you fill in means something is unfinished:
+The templates contain no other square brackets (no Markdown links or checkboxes). So any `[` left in AGENTS.md or docs/plan.md means something is unfinished. `/idea` runs this check itself; after an edit by hand, run it yourself:
 
 ```powershell
 Select-String -Pattern '\[' -Path AGENTS.md, docs\plan.md, docs\data.md
@@ -66,7 +66,7 @@ In the files the agent maintains (PROGRESS.md, history.md, decisions.md, ai_log.
 
 ### Once per machine
 
-This makes `/start`, `/wrap` and `/judge` exist in every project, and installs the user-level file if there is none yet. Keep this folder in one fixed place: on Linux the commands are links into it.
+This makes `/idea`, `/start`, `/wrap` and `/judge` exist in every project, and installs the user-level file if there is none yet. Keep this folder in one fixed place: on Linux the commands are links into it.
 
 **Linux (and macOS):**
 ```bash
@@ -127,11 +127,12 @@ Then open the user-level file once and fill its one bracket.
    git init -q -b main; git add -A; git commit -q -m "Start $name from the short-loop starter"
    ```
 
-Then, on either machine:
-1. Fill in AGENTS.md and docs/plan.md. Delete the `[IF ...]` sections that don't apply, and the docs that don't apply (`docs/data.md` unless it's a data project, `docs/ai_log.md` unless you must disclose AI use).
-2. Run the bracket check above until it finds nothing.
-3. Optional but cheap: in a first session, ask the agent to read AGENTS.md and question you about anything unclear. Fix AGENTS.md, then clear.
-4. `/start M0`.
+Then, on either machine, start the agent in the project:
+1. `/idea` followed by the idea in a few sentences. The agent asks one question at a time, top down (what and why, then how, then in what order), each with a suggested answer. Then it fills in AGENTS.md and docs/plan.md, deletes the sections and docs that don't apply, and runs the bracket check.
+2. Read both files and correct them until they say what you want. Then `/wrap`, and clear.
+3. `/start M0`.
+
+A kit's project starts from the kit's own steps instead (Embed_WF and Gamedev_WF have `/define`).
 
 **Don't create a project inside another project, or inside this folder.** Agents load instruction files from every parent folder as well (pi walks up to the filesystem root, and Claude Code does the same for CLAUDE.md), so the inner project would silently get the outer one's instructions in every session. `new-project.sh` refuses when it sees that.
 
@@ -308,5 +309,7 @@ No new step in a session: the checks that already existed ask more. The one new 
 | The template's Done gate said "the task's Done when passes", and `/start` said "Done when, otherwise the Done gate" | The Done gate is the default proof for a task whose plan section has no "Done when"; a "Done when" replaces it | The two definitions pointed at each other. Same field, same §8 contract; kits that set their own Done gate already use it this way. |
 | The stop rules were written out in both `/start` and §4 | Only in `/start` step 7; §4 points there | One fact, one place. §4 had already lost detail that `/start` has. |
 | Writing projects "don't fit" | They fit as no-code tasks, each ending "awaiting my check" (§8) | `/start` already handles tasks without code. |
+| Every append to docs/history.md read the whole file first (Claude Code's Edit needs a read) | `/start`, `/wrap` and `/judge` read only its end (`tail -n 15`); `/judge final` finds the last judge pass with `grep` and reads only that entry | The file only grows, so the cost of each append grew with the project. `tail` and `grep` need no permission prompt, and `tail` counts as the read Edit needs. Appending with `cat >>` would have prompted on every wrap. |
+| I filled in about 50 brackets in AGENTS.md and plan.md (93 with every optional section kept), and the agent's questions were an optional step afterwards | `/idea`: the agent asks one question at a time, top down, each with a suggested answer, then fills both files and runs the bracket check; I approve them (§3) | Most of the setup effort was those two files. Answering a suggestion is faster than filling a field, and the agent deletes the sections that don't apply. It isn't called `/define`, because both kits have their own. |
 
 Not changed on purpose: the split of files by read frequency, the five rules, the snapshot PROGRESS.md, the two gates, the fresh-session review, the bracket markers.

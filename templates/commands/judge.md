@@ -44,6 +44,8 @@ listed, and add what they find to the issues in step 5. Steps listed under "At /
    next to each. Don't drop a large gap for being large: say what it would cost and what it
    would replace. Don't fix anything; I decide.
 6. If this is the final review, also: check every item in "Hand-in" if there is one;
-   compare with the last judge pass in docs/history.md.
-7. Append the result to docs/history.md and add one line to PROGRESS.md. Commit those two
-   files only.
+   compare with the last judge pass in docs/history.md. Find it with
+   `grep -n '^## Judge pass' docs/history.md` and read only that entry, not the whole file.
+7. Append the result to docs/history.md under `## Judge pass · <date>` (or `## Final review ·
+   <date>`), reading only the end of that file (`tail -n 15`). Add one line to PROGRESS.md.
+   Commit those two files only.
